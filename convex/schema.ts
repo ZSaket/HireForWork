@@ -1,0 +1,65 @@
+import { defineSchema, defineTable } from 'convex/server';
+import { v } from 'convex/values';
+
+export default defineSchema({
+  users: defineTable({
+    name: v.string(),
+    email: v.string(),
+    role: v.union(v.literal("hirer"), v.literal("worker"), v.literal("pending")),
+    skills: v.optional(v.array(v.string())),
+    bio: v.optional(v.string()),
+    location: v.optional( v.string()),
+    rating: v.optional(v.number()),
+    profileImageUrl: v.optional(v.string()),
+    jobsCompleted: v.optional(v.number()),
+    clerkId: v.string()
+  }).index("by_clerk_id", ["clerkId"]),
+
+  jobs: defineTable({
+    title: v.string(),
+    description: v.string(),
+    postedBy: v.id("users"),
+    acceptedBy: v.optional(v.id("users")),
+    wage: v.string(),
+    location: v.string(),
+    clerkId: v.string(),
+    status: v.union(
+      v.literal("open"),
+      v.literal("in-progress"),
+      v.literal("completed"),
+      v.literal("cancelled")
+    ),
+    createdAt: v.number(),
+  }).index("by_postedBy", ["postedBy"]),
+
+  chats: defineTable({
+    jobId: v.id("jobs"),
+    users: v.array(v.id("users")),
+    messages: v.array(
+      v.object({
+        sender: v.id("users"),
+        text: v.string(),
+        timestamp: v.number(),
+      })
+    ),
+    updatedAt: v.number(),
+  }),
+
+  payments: defineTable({
+    jobId: v.id("jobs"),
+    hirerId: v.id("users"),
+    workerId: v.id("users"),
+    amount: v.number(),
+    status: v.union(v.literal("pending"), v.literal("paid"), v.literal("failed")),
+    createdAt: v.number(),
+  }),
+
+  reviews: defineTable({
+    reviewerId: v.id("users"),
+    revieweeId: v.id("users"),
+    jobId: v.id("jobs"),
+    rating: v.number(),
+    comment: v.optional(v.string()),
+    createdAt: v.number(),
+  }),
+});
