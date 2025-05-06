@@ -35,7 +35,7 @@ export default function login() {
               
               if (userProfile && userProfile.role && userProfile.role !== 'pending') {
                 // User exists and has a role, direct to tabs
-                router.replace("/(tabs)")
+                router.replace("/")
               } else {
                 // User doesn't exist or has no role, direct to role selection
                 router.replace("/(auth)/RoleSelection");

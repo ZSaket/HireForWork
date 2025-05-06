@@ -12,8 +12,6 @@ import {
 import { useUser } from '@clerk/clerk-expo';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { useRouter } from 'expo-router';
 
 export default function RoleSelectionScreen() {
@@ -77,7 +75,11 @@ export default function RoleSelectionScreen() {
       
       // Navigate based on role
       //navigation.navigate(role === 'hirer' ? 'HirerDashboard' : 'WorkerDashboard');
-      router.replace("/(tabs)")
+      if (role === "hirer") {
+        router.replace("/hirer/HirerDashboard");
+      } else if (role === "worker") {
+        router.replace("/worker/WorkerDashboard");
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
       Alert.alert(

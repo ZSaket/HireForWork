@@ -1,19 +1,23 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { DashboardProps } from '@/components/types';
+import { router } from 'expo-router';
+import { Id } from '@/convex/_generated/dataModel';
+
 export default function HirerDashboard() {
   const { user } = useUser();
   const { signOut } = useAuth();
+  
   const userData = useQuery(api.users.getUserByClerkId, {
     clerkId: user?.id ?? "",
   });
   
   const createJob = useMutation(api.jobs.createJob);
+  // Modified to use the new query that excludes completed jobs
   const jobHistory = useQuery(
     api.jobs.getJobsByHirer,
     userData?._id ? { hirerId: userData._id } : "skip"
@@ -26,36 +30,62 @@ export default function HirerDashboard() {
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   const handleCreateJob = async () => {
-    if (!title || !description || !location || !wage || !userData?._id) return;
+    if (!title || !description || !location || !wage || !userData?._id) {
+      Alert.alert("Missing Information", "Please fill in all job details");
+      return;
+    }
   
-    await createJob({
-      title,
-      description,
-      location,
-      wage,
-      clerkId: user?.id || '',
-      postedBy: userData._id,
-      status: 'open',
-      createdAt: Date.now(),
-    });
-  
-    // Reset form fields
-    setTitle('');
-    setDescription('');
-    setLocation('');
-    setWage('');
-    setIsFormVisible(false);
+    try {
+      await createJob({
+        title,
+        description,
+        location,
+        wage,
+        clerkId: user?.id || '',
+        postedBy: userData._id,
+        createdAt: Date.now(),
+      });
+      
+      // Show success message
+      Alert.alert("Success", "Job created successfully!");
+      
+      // Reset form fields
+      setTitle('');
+      setDescription('');
+      setLocation('');
+      setWage('');
+      setIsFormVisible(false);
+    } catch (error) {
+      Alert.alert("Error", "Failed to create job. Please try again.");
+    }
   };
 
-  const formatDate = (timestamp: string | number | Date) => {
+  const handleMarkJobDone = (jobId: Id<"jobs">, jobWage: string, jobTitle: string) => {
+    // Using Expo Router for navigation to payment screen
+    router.push({
+      pathname: "/(screens)/PaymentScreen",
+      params: { 
+        jobId: jobId,
+        amount: jobWage,
+        jobTitle: jobTitle
+      }
+    });
+  };
+
+  const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
+
+  // Function to determine if a job can be marked as done (if status is 'in-progress')
+  const canMarkJobDone = (status: string) => {
+    return status === 'in-progress';
+  };
   
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50" >
       
-      <View className="bg-white px-5 py-4 shadow-sm">
+      <View className="bg-white px-5 py-4 shadow-sm" >
         <View className="flex-row justify-between items-center">
           <View>
             <Text className="text-2xl font-bold text-gray-800">Dashboard</Text>
@@ -178,8 +208,16 @@ export default function HirerDashboard() {
                       <Text className="text-gray-600 ml-1">{job.location}</Text>
                     </View>
                   </View>
-                  <View className="bg-yellow-100 px-3 py-1 rounded-full">
-                    <Text className="text-yellow-800 font-medium text-xs">{job.status}</Text>
+                  <View className={`px-3 py-1 rounded-full ${
+                    job.status === 'open' ? 'bg-yellow-100' : 
+                    job.status === 'in-progress' ? 'bg-green-100' : 
+                    job.status === 'pending' ? 'bg-blue-100' : 'bg-gray-100'
+                  }`}>
+                    <Text className={`font-medium text-xs ${
+                      job.status === 'open' ? 'text-yellow-800' : 
+                      job.status === 'in-progress' ? 'text-green-800' : 
+                      job.status === 'pending' ? 'text-blue-800' : 'text-gray-800'
+                    }`}>{job.status}</Text>
                   </View>
                 </View>
                 
@@ -197,11 +235,21 @@ export default function HirerDashboard() {
                     </Text>
                   </View>
                 </View>
+                
+                {canMarkJobDone(job.status) && (
+                  <TouchableOpacity
+                    onPress={() => handleMarkJobDone(job._id, job.wage, job.title)}
+                    className="bg-green-500 p-3 rounded-lg items-center mt-3 flex-row justify-center"
+                  >
+                    <Text className="text-white font-bold mr-2">Mark as Done</Text>
+                    <Ionicons name="checkmark-circle-outline" size={18} color="white" />
+                  </TouchableOpacity>
+                )}
               </View>
             ))}
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

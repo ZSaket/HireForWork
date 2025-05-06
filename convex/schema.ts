@@ -8,7 +8,7 @@ export default defineSchema({
     role: v.union(v.literal("hirer"), v.literal("worker"), v.literal("pending")),
     skills: v.optional(v.array(v.string())),
     bio: v.optional(v.string()),
-    location: v.optional( v.string()),
+    location: v.optional(v.string()),
     rating: v.optional(v.number()),
     profileImageUrl: v.optional(v.string()),
     jobsCompleted: v.optional(v.number()),
@@ -27,31 +27,32 @@ export default defineSchema({
       v.literal("open"),
       v.literal("in-progress"),
       v.literal("completed"),
-      v.literal("cancelled")
+      v.literal("cancelled"),
+      v.literal("pending")
     ),
     createdAt: v.number(),
-  }).index("by_postedBy", ["postedBy"]),
-
-  chats: defineTable({
-    jobId: v.id("jobs"),
-    users: v.array(v.id("users")),
-    messages: v.array(
-      v.object({
-        sender: v.id("users"),
-        text: v.string(),
-        timestamp: v.number(),
-      })
-    ),
-    updatedAt: v.number(),
-  }),
+    paymentStatus: v.optional(v.union(
+      v.literal("pending"),
+      v.literal("paid"),
+      v.literal("failed"),
+      v.string()
+    )),
+    paymentMethod: v.optional(v.string()),
+    paymentAmount: v.optional(v.string()),
+    paymentDate: v.optional(v.number())
+  })
+  .index("by_postedBy", ["postedBy"])
+  .index("by_postedBy_status", ["postedBy", "status"]),
 
   payments: defineTable({
     jobId: v.id("jobs"),
     hirerId: v.id("users"),
     workerId: v.id("users"),
     amount: v.number(),
-    status: v.union(v.literal("pending"), v.literal("paid"), v.literal("failed")),
+    paymentStatus: v.union(v.literal("pending"), v.literal("paid"), v.literal("failed"), v.string()),
     createdAt: v.number(),
+    paymentMethod: v.string(),
+    transactionId: v.optional(v.string())
   }),
 
   reviews: defineTable({

@@ -5,6 +5,7 @@ import { Stack } from "expo-router";
 import { api } from "../convex/_generated/api";
 import { useQuery } from "convex/react";
 
+
 export default function InitialLayout() {
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
@@ -18,30 +19,31 @@ export default function InitialLayout() {
     isSignedIn && user?.id ? { clerkId: user.id } : "skip"
   );
 
-  const [redirected, setRedirected] = useState(false);
-
   useEffect(() => {
-    if (!isLoaded || redirected) return;
-
+    if (!isLoaded) return;
+  
     const isAuthScreen = segments[0] === "(auth)";
-
+  
     if (!isSignedIn && !isAuthScreen) {
       // ✅ User is signed out → redirect to login
-      
-        router.replace("/(auth)/login");
-      
+      router.replace("/(auth)/login");
+      return;
     }
-
+  
     if (isSignedIn && isAuthScreen && userData) {
       // ✅ Redirect based on role
       if (userData.role === "pending") {
         router.replace("/(auth)/RoleSelection");
       } else {
-        router.replace("/(tabs)");
+        if (userData.role === "hirer") {
+          router.replace("/hirer/HirerDashboard");
+        } else if (userData.role === "worker") {
+          router.replace("/worker/WorkerDashboard");
+        }
       }
-      setRedirected(false);
     }
-  }, [isLoaded, isSignedIn, segments, userData, redirected]);
+  }, [isLoaded, isSignedIn, segments, userData]);
+  
 
   // ⏳ Wait until auth is loaded or userData is ready
   if (!isLoaded || (isSignedIn && !userData)) return null;
