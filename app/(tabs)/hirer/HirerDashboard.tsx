@@ -44,6 +44,7 @@ export default function HirerDashboard() {
         clerkId: user?.id || '',
         postedBy: userData._id,
         createdAt: Date.now(),
+        hirerName:userData.name,
       });
       
       // Show success message
@@ -60,14 +61,15 @@ export default function HirerDashboard() {
     }
   };
 
-  const handleMarkJobDone = (jobId: Id<"jobs">, jobWage: string, jobTitle: string) => {
+  const handleMarkJobDone = (jobId: Id<"jobs">, jobWage: string, jobTitle: string, workerName: string) => {
     // Using Expo Router for navigation to payment screen
     router.push({
       pathname: "/(screens)/PaymentScreen",
       params: { 
         jobId: jobId,
         amount: jobWage,
-        jobTitle: jobTitle
+        jobTitle: jobTitle,
+        workerName: workerName,
       }
     });
   };
@@ -83,8 +85,11 @@ export default function HirerDashboard() {
   };
   
   return (
-    <View className="flex-1 bg-gray-50" >
-      
+    <ScrollView 
+      contentContainerStyle={{ paddingBottom: 40 }} 
+      className="flex-1 bg-gray-50"
+      keyboardShouldPersistTaps="handled"
+      >
       <View className="bg-white px-5 py-4 shadow-sm" >
         <View className="flex-row justify-between items-center">
           <View>
@@ -238,7 +243,7 @@ export default function HirerDashboard() {
                 
                 {canMarkJobDone(job.status) && (
                   <TouchableOpacity
-                    onPress={() => handleMarkJobDone(job._id, job.wage, job.title)}
+                    onPress={() => handleMarkJobDone(job._id, job.wage, job.title, job.workerName || '')}
                     className="bg-green-500 p-3 rounded-lg items-center mt-3 flex-row justify-center"
                   >
                     <Text className="text-white font-bold mr-2">Mark as Done</Text>
@@ -250,6 +255,6 @@ export default function HirerDashboard() {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-    </View>
+    </ScrollView>
   );
 }

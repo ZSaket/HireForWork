@@ -20,6 +20,8 @@ export default defineSchema({
     description: v.string(),
     postedBy: v.id("users"),
     acceptedBy: v.optional(v.id("users")),
+    hirerName: v.optional(v.string()),
+    workerName: v.optional(v.string()),
     wage: v.string(),
     location: v.string(),
     clerkId: v.string(),
@@ -58,9 +60,15 @@ export default defineSchema({
   reviews: defineTable({
     reviewerId: v.id("users"),
     revieweeId: v.id("users"),
+    reviewerName: v.optional(v.string()),
+    revieweeName: v.optional(v.string()),
     jobId: v.id("jobs"),
     rating: v.number(),
     comment: v.optional(v.string()),
     createdAt: v.number(),
-  }),
+  })
+    .index("by_reviewer", ["reviewerId"])
+    .index("by_reviewee", ["revieweeId"])
+    .index("by_job", ["jobId"])
+    .index("by_job_reviewer", ["jobId", "reviewerId"]),
 });

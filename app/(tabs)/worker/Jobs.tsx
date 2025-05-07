@@ -23,7 +23,7 @@ export default function Jobs() {
 
   const handleAccept = async (jobId: Id<"jobs">) => {
     if (!userId) return;
-    await acceptJob({ jobId, userId });
+    await acceptJob({ jobId, userId, workerName: user?.fullName || 'Unnamed' });
   };
 
   if (!allJobs) return <Text>Loading jobs...</Text>;

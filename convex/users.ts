@@ -44,8 +44,7 @@ export const getUserByClerkId = query({
         .first();
     },
   });
-  
-  // Define a query to get user profile by clerkId
+
 export const getUserProfile = query({
     args: { clerkId: v.string() },
     handler: async (ctx, args) => {
@@ -59,9 +58,7 @@ export const getUserProfile = query({
 });
 
 
-  
-  // Update user profile
-  export const updateUserProfile = mutation({
+export const updateUserProfile = mutation({
     args: {
       clerkId: v.string(),
       role: v.union(v.literal("hirer"), v.literal("worker")),
@@ -94,4 +91,25 @@ export const getUserProfile = query({
     },
   });
 
-  
+  // Add this function to retrieve a user by their ID
+export const getUserById = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.userId);
+  },
+});
+
+// Add this function to get multiple users by their IDs (useful for batched requests)
+export const getUsersByIds = query({
+  args: { userIds: v.array(v.id("users")) },
+  handler: async (ctx, args) => {
+    const users = await Promise.all(
+      args.userIds.map(async (id) => {
+        return await ctx.db.get(id);
+      })
+    );
+    
+    // Filter out any null values (in case some users don't exist)
+    return users.filter(Boolean);
+  },
+});
