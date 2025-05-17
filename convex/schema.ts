@@ -44,7 +44,8 @@ export default defineSchema({
     paymentDate: v.optional(v.number())
   })
   .index("by_postedBy", ["postedBy"])
-  .index("by_postedBy_status", ["postedBy", "status"]),
+  .index("by_postedBy_status", ["postedBy", "status"])
+  .index("by_acceptedBy", ["acceptedBy"]),
 
   payments: defineTable({
     jobId: v.id("jobs"),
@@ -71,4 +72,20 @@ export default defineSchema({
     .index("by_reviewee", ["revieweeId"])
     .index("by_job", ["jobId"])
     .index("by_job_reviewer", ["jobId", "reviewerId"]),
+
+  messages: defineTable({
+      jobId: v.id("jobs"),
+      senderId: v.id("users"),
+      receiverId: v.id("users"),
+      content: v.string(),
+      createdAt: v.number(),
+      read: v.boolean(),
+      senderName: v.optional(v.string()),
+      receiverName: v.optional(v.string()),
+    })
+    .index("by_job", ["jobId"])
+    .index("by_participants", ["jobId", "senderId", "receiverId"])
+    .index("by_receiver", ["receiverId", "read"])
 });
+
+// Add this to your defineSchema in schema.js

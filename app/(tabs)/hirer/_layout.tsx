@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
+import { View } from 'react-native';
 
 export default function HirerLayout() {
   return (
@@ -27,7 +28,7 @@ export default function HirerLayout() {
           title: 'Chats',
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbox-outline" size={size} color={color} />
+            <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
           ),
         }}
       />

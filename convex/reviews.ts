@@ -63,60 +63,86 @@ export const createReview = mutation({
     });
   },
 });
-
-// Add a query to get reviews with names
+// Get reviews where the user is the reviewee (received reviews)
 export const getReviewsByReviewee = query({
-  args: {
-    revieweeId: v.id('users'),
-  },
+  args: { revieweeId: v.id('users') },
   handler: async (ctx, args) => {
     const reviews = await ctx.db
       .query('reviews')
       .withIndex('by_reviewee', (q) => q.eq('revieweeId', args.revieweeId))
       .collect();
     
-    // If you're using the approach where names are already stored in the reviews
-    return reviews;
-    
-    // Alternative approach if you want to ensure names are always up to date
-    /*
+    // Enrich reviews with reviewer information
     const enrichedReviews = await Promise.all(reviews.map(async (review) => {
-      // Get job details
-      const job = await ctx.db.get(review.jobId);
-      
-      // Get reviewer details if needed
-      if (!review.reviewerName) {
+      if (!review.reviewerName && review.reviewerId) {
         const reviewer = await ctx.db.get(review.reviewerId);
         if (reviewer) {
-          review.reviewerName = reviewer.name;
+          return { ...review, reviewerName: reviewer.name };
         }
       }
-      
-      // Get reviewee details if needed
-      if (!review.revieweeName) {
-        const reviewee = await ctx.db.get(review.revieweeId);
-        if (reviewee) {
-          review.revieweeName = reviewee.name;
-        }
-      }
-      
-      return { ...review, jobTitle: job?.title };
+      return review;
     }));
     
-    return enrichedReviews;
-    */
+    // Sort by date, newest first
+    return enrichedReviews.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+// Get reviews where the user is the reviewer (given reviews)
+export const getReviewsByReviewer = query({
+  args: { reviewerId: v.id('users') },
+  handler: async (ctx, args) => {
+    const reviews = await ctx.db
+      .query('reviews')
+      .withIndex('by_reviewer', (q) => q.eq('reviewerId', args.reviewerId))
+      .collect();
+    
+    // Enrich reviews with reviewee information
+    const enrichedReviews = await Promise.all(reviews.map(async (review) => {
+      if (!review.revieweeName && review.revieweeId) {
+        const reviewee = await ctx.db.get(review.revieweeId);
+        if (reviewee) {
+          return { ...review, revieweeName: reviewee.name };
+        }
+      }
+      return review;
+    }));
+    
+    // Sort by date, newest first
+    return enrichedReviews.sort((a, b) => b.createdAt - a.createdAt);
   },
 });
 
 // Get reviews for a specific job
 export const getReviewsByJob = query({
-  args: {
-    jobId: v.id('jobs'),
-  },
+  args: { jobId: v.id('jobs') },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const reviews = await ctx.db
       .query('reviews')
       .withIndex('by_job', (q) => q.eq('jobId', args.jobId))
       .collect();
+    
+    // Enrich reviews with reviewer and reviewee information
+    const enrichedReviews = await Promise.all(reviews.map(async (review) => {
+      let enrichedReview = { ...review };
+      
+      if (!review.reviewerName && review.reviewerId) {
+        const reviewer = await ctx.db.get(review.reviewerId);
+        if (reviewer) {
+          enrichedReview.reviewerName = reviewer.name;
+        }
+      }
+      
+      if (!review.revieweeName && review.revieweeId) {
+        const reviewee = await ctx.db.get(review.revieweeId);
+        if (reviewee) {
+          enrichedReview.revieweeName = reviewee.name;
+        }
+      }
+      
+      return enrichedReview;
+    }));
+    
+    return enrichedReviews;
   },
 });

@@ -189,3 +189,125 @@ export const getJobById = query({
     return job;
   },
 });
+
+export const getJobsByWorker = query({
+  args: {
+    workerId: v.id("users"),
+    status: v.optional(v.union(
+      v.literal("open"),
+      v.literal("in-progress"),
+      v.literal("completed"),
+      v.literal("cancelled"),
+      v.literal("pending")
+    )),
+  },
+  handler: async (ctx, args) => {
+    let jobsQuery = ctx.db
+      .query("jobs")
+      .withIndex("by_acceptedBy", (q) => q.eq("acceptedBy", args.workerId));
+    
+    // Add status filter if provided
+    if (args.status) {
+      jobsQuery = jobsQuery.filter((q) => q.eq(q.field("status"), args.status));
+    }
+    
+    const jobs = await jobsQuery.collect();
+    
+    // Enrich jobs with hirer information
+    const enrichedJobs = await Promise.all(jobs.map(async (job) => {
+      if (!job.hirerName && job.postedBy) {
+        const hirer = await ctx.db.get(job.postedBy);
+        if (hirer) {
+          return { ...job, hirerName: hirer.name };
+        }
+      }
+      return job;
+    }));
+    
+    return enrichedJobs;
+  },
+});
+
+export const getActiveJobsByWorker = query({
+  args: {
+    workerId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const jobs = await ctx.db
+      .query("jobs")
+      .withIndex("by_acceptedBy", (q) => q.eq("acceptedBy", args.workerId))
+      .filter((q) => q.eq(q.field("status"), "in-progress"))
+      .collect();
+    
+    // Enrich jobs with hirer information
+    const enrichedJobs = await Promise.all(jobs.map(async (job) => {
+      if (!job.hirerName && job.postedBy) {
+        const hirer = await ctx.db.get(job.postedBy);
+        if (hirer) {
+          return { ...job, hirerName: hirer.name };
+        }
+      }
+      return job;
+    }));
+    
+    return enrichedJobs;
+  },
+});
+
+export const getCompletedJobsByWorker = query({
+  args: {
+    workerId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const jobs = await ctx.db
+      .query("jobs")
+      .withIndex("by_acceptedBy", (q) => q.eq("acceptedBy", args.workerId))
+      .filter((q) => q.eq(q.field("status"), "completed"))
+      .collect();
+    
+    // Enrich jobs with hirer information
+    const enrichedJobs = await Promise.all(jobs.map(async (job) => {
+      if (!job.hirerName && job.postedBy) {
+        const hirer = await ctx.db.get(job.postedBy);
+        if (hirer) {
+          return { ...job, hirerName: hirer.name };
+        }
+      }
+      return job;
+    }));
+    
+    return enrichedJobs;
+  },
+});
+
+// Get jobs accepted by this worker
+export const getAcceptedJobsByWorker = query({
+  args: { workerId: v.id("users") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("jobs")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("acceptedBy"), args.workerId),
+          q.eq(q.field("status"), "in-progress")
+        )
+      )
+      .collect();
+  },
+});
+
+// Get jobs posted by a specific hirer that have been accepted
+export const getAcceptedJobsByHirer = query({
+  args: { hirerId: v.id("users") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("jobs")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("postedBy"), args.hirerId),
+          q.eq(q.field("status"), "in-progress")
+        )
+      )
+      .collect();
+  },
+});

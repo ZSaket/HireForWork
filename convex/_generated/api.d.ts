@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as http from "../http.js";
 import type * as jobs from "../jobs.js";
+import type * as messages from "../messages.js";
 import type * as reviews from "../reviews.js";
 import type * as users from "../users.js";
 
@@ -29,6 +30,7 @@ import type * as users from "../users.js";
 declare const fullApi: ApiFromModules<{
   http: typeof http;
   jobs: typeof jobs;
+  messages: typeof messages;
   reviews: typeof reviews;
   users: typeof users;
 }>;

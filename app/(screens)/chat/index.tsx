@@ -1,10 +1,10 @@
-// app/(tabs)/hirer/Chats.tsx
+// app/chat/index.tsx
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ChatListScreen } from '../../../components/common/ChatComponents';
 import { StatusBar } from 'expo-status-bar';
 
-export default function HirerChatsScreen() {
+export default function ChatListRoute() {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />

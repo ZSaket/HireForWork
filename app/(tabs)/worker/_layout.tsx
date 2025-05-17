@@ -31,6 +31,16 @@ export default function WorkerLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="Chats"
+        options={{
+          title: 'Chats',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
