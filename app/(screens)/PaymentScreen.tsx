@@ -19,10 +19,9 @@ export default function PaymentScreen() {
   const jobId = params.jobId as string;
   const amount = params.amount as string;
   const jobTitle = params.jobTitle as string;
-  const workerId = params.workerId as string; // Make sure to pass this from the previous screen
-  const workerName = params.workerName as string; // Make sure to pass this from the previous screen
+  const workerId = params.workerId as string; 
+  const workerName = params.workerName as string; 
   
-  // Service fee calculation (5% of job amount)
   const jobAmount = parseFloat(amount);
   const serviceFee = jobAmount * 0.05;
   const totalAmount = jobAmount + serviceFee;
@@ -31,10 +30,10 @@ export default function PaymentScreen() {
   const [upiId, setUpiId] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // Connect to your Convex backend using the updated mutation
+  
   const completeJob = useMutation(api.jobs.completeJob);
   
-  // Update the handlePayment function to include the worker's name when completing the job
+  
 const handlePayment = async () => {
   if (!selectedPaymentMethod) {
     Alert.alert("Payment Method Required", "Please select a payment method to continue");
@@ -49,19 +48,17 @@ const handlePayment = async () => {
   try {
     setIsProcessing(true);
     
-    // Simulate payment processing
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Update job payment status in the database including the worker name
+    
     await completeJob({
       jobId: jobId as Id<"jobs">,
       paymentStatus: 'completed',
       paymentMethod: selectedPaymentMethod,
       paymentAmount: totalAmount.toFixed(2),
-      workerName: workerName, // Add this line to include worker name
+      workerName: workerName, 
     });
     
-    // Show success message and navigate to review screen
     Alert.alert(
       "Payment Successful", 
       `Your payment of ₹${totalAmount.toFixed(2)} for "${jobTitle}" job has been processed successfully.`,
@@ -142,7 +139,6 @@ const handlePayment = async () => {
         </View>
         
         <ScrollView className="flex-1 px-4">
-          {/* Order Summary Section */}
           <View className="bg-white rounded-xl p-5 mt-4 shadow-sm">
             <Text className="text-lg font-bold text-gray-800 mb-3">Order Summary</Text>
             
@@ -176,7 +172,6 @@ const handlePayment = async () => {
             </View>
           </View>
           
-          {/* Payment Methods Section */}
           <View className="mt-4">
             <Text className="text-lg font-bold text-gray-800 mb-3">Select Payment Method</Text>
             
@@ -204,7 +199,7 @@ const handlePayment = async () => {
               'Pay using your wallet balance'
             )}
             
-            {/* UPI Input field when UPI is selected */}
+            
             {selectedPaymentMethod === 'upi' && (
               <View className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-4">
                 <Text className="text-gray-700 mb-2">Enter UPI ID</Text>
@@ -225,7 +220,7 @@ const handlePayment = async () => {
           </View>
         </ScrollView>
         
-        {/* Payment button */}
+        
         <View className="p-4 bg-white border-t border-gray-200">
           <TouchableOpacity
             onPress={handlePayment}

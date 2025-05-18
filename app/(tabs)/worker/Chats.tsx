@@ -1,4 +1,4 @@
-// app/(tabs)/worker/Chats.tsx
+
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ChatListScreen } from '../../../components/common/ChatComponents';

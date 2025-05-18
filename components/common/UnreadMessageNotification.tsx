@@ -1,4 +1,4 @@
-// components/UnreadMessageNotification.tsx
+
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useQuery } from 'convex/react';
@@ -21,7 +21,7 @@ export default function UnreadMessageNotification() {
     return null;
   }
   
-  // Calculate total unread messages
+
   const totalUnread = unreadCounts.reduce((acc, item) => acc + item.unreadCount, 0);
   
   if (totalUnread === 0) {

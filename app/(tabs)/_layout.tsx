@@ -18,7 +18,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isLoaded || !user || !userData) return;
 
-    setHasRedirected(true); // ✅ only redirect once
+    setHasRedirected(true); 
 
     if (userData.role === 'pending') {
       router.replace("/(auth)/RoleSelection");

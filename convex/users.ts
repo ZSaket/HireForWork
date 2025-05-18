@@ -1,4 +1,4 @@
-import {action, mutation, query} from "./_generated/server"
+import {mutation, query} from "./_generated/server"
 import {v} from "convex/values"
 
 export const createUser = mutation({
@@ -69,7 +69,6 @@ export const updateUserProfile = mutation({
       ),
     },
     handler: async (ctx, args) => {
-      // Find the user by clerkId
       const existingUser = await ctx.db
         .query("users")
         .filter((q) => q.eq(q.field("clerkId"), args.clerkId))
@@ -79,7 +78,7 @@ export const updateUserProfile = mutation({
         throw new Error("User not found");
       }
       
-      // Update the user with the new information
+      
       await ctx.db.patch(existingUser._id, {
         role: args.role,
         bio: args.bio,
@@ -91,7 +90,6 @@ export const updateUserProfile = mutation({
     },
   });
 
-  // Add this function to retrieve a user by their ID
 export const getUserById = query({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
@@ -99,7 +97,7 @@ export const getUserById = query({
   },
 });
 
-// Add this function to get multiple users by their IDs (useful for batched requests)
+
 export const getUsersByIds = query({
   args: { userIds: v.array(v.id("users")) },
   handler: async (ctx, args) => {
@@ -109,7 +107,6 @@ export const getUsersByIds = query({
       })
     );
     
-    // Filter out any null values (in case some users don't exist)
     return users.filter(Boolean);
   },
 });

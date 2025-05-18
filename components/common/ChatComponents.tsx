@@ -233,14 +233,12 @@ export const ChatScreen = ({ jobId, otherUserId }: { jobId: Id<"jobs">, otherUse
   const markAsRead = useMutation(api.messages.markMessagesAsRead);
   
   useEffect(() => {
-    // Mark messages as read when chat is opened
     if (userId) {
       markAsRead({ jobId, userId });
     }
   }, [jobId, userId, messages]);
   
   useEffect(() => {
-    // Scroll to bottom when messages change
     if (flatListRef.current && messages?.length) {
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
@@ -252,7 +250,6 @@ export const ChatScreen = ({ jobId, otherUserId }: { jobId: Id<"jobs">, otherUse
     if (!message.trim() || !userId || !job) return;
     
     try {
-      // Animate send button
       Animated.sequence([
         Animated.timing(sendButtonScale, {
           toValue: 0.8,
@@ -381,7 +378,6 @@ export const ChatScreen = ({ jobId, otherUserId }: { jobId: Id<"jobs">, otherUse
   );
 };
 
-// Enhanced chat list screen component
 export const ChatListScreen = () => {
   const { user } = useUser();
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -498,7 +494,7 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     fontSize: 14,
   },
-  // Header styles
+  
   header: {
     paddingTop: Platform.OS === 'ios' ? 50 : 40,
     paddingBottom: 12,
@@ -539,12 +535,12 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     marginTop: 2,
   },
-  // Chat background
+
   chatBackground: {
     flex: 1,
     backgroundColor: COLORS.secondary,
   },
-  // Message styles
+
   messageList: {
     padding: 16,
     paddingBottom: 24,
@@ -597,7 +593,7 @@ const styles = StyleSheet.create({
   receiverTimeText: {
     color: COLORS.textLight,
   },
-  // Input styles
+
   inputContainer: {
     padding: 12,
     backgroundColor: '#fff',
@@ -666,7 +662,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
-  // Chat list styles
+
   listHeaderContainer: {
     zIndex: 10,
   },

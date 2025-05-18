@@ -1,4 +1,4 @@
-// components/common/LoadingScreen.jsx
+
 import { View, ActivityIndicator } from 'react-native';
 import React from 'react';
 import { COLORS } from '@/constants/theme';

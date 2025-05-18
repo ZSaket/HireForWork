@@ -10,7 +10,7 @@ export const createJob = mutation({
     location: v.string(),
     clerkId: v.string(),
     createdAt: v.number(),
-    hirerName: v.string(), // Add this line
+    hirerName: v.string(), 
   },
   handler: async (ctx, args) => {
     const jobId = await ctx.db.insert("jobs", {
@@ -20,13 +20,13 @@ export const createJob = mutation({
       wage: args.wage,
       location: args.location,
       clerkId: args.clerkId,
-      status: "open", // Set initial status to open
+      status: "open", 
       createdAt: args.createdAt,
-      paymentStatus: "", // Initialize empty payment fields
+      paymentStatus: "", 
       paymentMethod: "",
       paymentAmount: "",
       paymentDate: 0,
-      hirerName: args.hirerName, // Add this line
+      hirerName: args.hirerName, 
     });
     return jobId;
   },
@@ -40,7 +40,7 @@ export const getAllOpenJobs = query({
       .filter((q: any) => q.eq(q.field('status'), 'open'))
       .collect();
 
-    // Enrich jobs with user information
+    
     const enrichedJobs = await Promise.all(jobs.map(async (job) => {
       if (!job.hirerName && job.postedBy) {
         const hirer = await ctx.db.get(job.postedBy);
@@ -59,7 +59,7 @@ export const acceptJob = mutation({
   args: {
     jobId: v.id('jobs'),
     userId: v.id('users'),
-    workerName: v.string(), // Add this line
+    workerName: v.string(), 
   },
   handler: async (ctx, { jobId, userId, workerName }) => {
     const job = await ctx.db.get(jobId);
@@ -74,7 +74,7 @@ export const acceptJob = mutation({
     await ctx.db.patch(jobId, {
       acceptedBy: userId,
       status: 'in-progress',
-      workerName: workerName, // Add this line
+      workerName: workerName, 
     });
     
     return true;
@@ -86,14 +86,13 @@ export const getJobsByHirer = query({
     hirerId: v.id("users"),
   },
   handler: async (ctx, args) => {
-    // Only fetch jobs that aren't completed
+    
     const jobs = await ctx.db
       .query("jobs")
       .withIndex("by_postedBy", (q: any) => q.eq("postedBy", args.hirerId))
       .filter((q: any) => q.neq(q.field("status"), "completed"))
       .collect();
     
-    // Enrich jobs with worker information
     const enrichedJobs = await Promise.all(jobs.map(async (job) => {
       if (!job.workerName && job.acceptedBy) {
         const worker = await ctx.db.get(job.acceptedBy);
@@ -135,7 +134,7 @@ export const completeJob = mutation({
     paymentStatus: v.string(),
     paymentMethod: v.string(),
     paymentAmount: v.string(),
-    workerName: v.optional(v.string()), // Add this line
+    workerName: v.optional(v.string()), 
   },
   handler: async (ctx, args) => {
     const job = await ctx.db.get(args.jobId);
@@ -148,17 +147,15 @@ export const completeJob = mutation({
       throw new Error("This job cannot be completed");
     }
     
-    // Update the job with payment info and status
     await ctx.db.patch(args.jobId, {
       status: "completed",
       paymentStatus: args.paymentStatus,
       paymentMethod: args.paymentMethod,
       paymentAmount: args.paymentAmount,
       paymentDate: Date.now(),
-      workerName: args.workerName, // Add this line to include worker name
+      workerName: args.workerName, 
     });
     
-    // Rest of the function remains the same...
   },
 });
 
@@ -170,7 +167,6 @@ export const getJobById = query({
     const job = await ctx.db.get(args.jobId);
     if (!job) return null;
     
-    // Get hirer information if not already included
     if (!job.hirerName && job.postedBy) {
       const hirer = await ctx.db.get(job.postedBy);
       if (hirer) {
@@ -178,7 +174,6 @@ export const getJobById = query({
       }
     }
     
-    // Get worker information if job has been accepted
     if (!job.workerName && job.acceptedBy) {
       const worker = await ctx.db.get(job.acceptedBy);
       if (worker) {
@@ -206,14 +201,12 @@ export const getJobsByWorker = query({
       .query("jobs")
       .withIndex("by_acceptedBy", (q) => q.eq("acceptedBy", args.workerId));
     
-    // Add status filter if provided
     if (args.status) {
       jobsQuery = jobsQuery.filter((q) => q.eq(q.field("status"), args.status));
     }
     
     const jobs = await jobsQuery.collect();
     
-    // Enrich jobs with hirer information
     const enrichedJobs = await Promise.all(jobs.map(async (job) => {
       if (!job.hirerName && job.postedBy) {
         const hirer = await ctx.db.get(job.postedBy);
@@ -239,7 +232,6 @@ export const getActiveJobsByWorker = query({
       .filter((q) => q.eq(q.field("status"), "in-progress"))
       .collect();
     
-    // Enrich jobs with hirer information
     const enrichedJobs = await Promise.all(jobs.map(async (job) => {
       if (!job.hirerName && job.postedBy) {
         const hirer = await ctx.db.get(job.postedBy);
@@ -265,7 +257,7 @@ export const getCompletedJobsByWorker = query({
       .filter((q) => q.eq(q.field("status"), "completed"))
       .collect();
     
-    // Enrich jobs with hirer information
+    
     const enrichedJobs = await Promise.all(jobs.map(async (job) => {
       if (!job.hirerName && job.postedBy) {
         const hirer = await ctx.db.get(job.postedBy);
@@ -280,7 +272,7 @@ export const getCompletedJobsByWorker = query({
   },
 });
 
-// Get jobs accepted by this worker
+
 export const getAcceptedJobsByWorker = query({
   args: { workerId: v.id("users") },
   handler: async (ctx, args) => {
@@ -296,7 +288,6 @@ export const getAcceptedJobsByWorker = query({
   },
 });
 
-// Get jobs posted by a specific hirer that have been accepted
 export const getAcceptedJobsByHirer = query({
   args: { hirerId: v.id("users") },
   handler: async (ctx, args) => {

@@ -68,8 +68,12 @@ export default function WorkerDashboard() {
   };
 
   const toggleDrawer = () => {
+    
     const toValue = drawerOpen ? -DRAWER_WIDTH : 0;
     const overlayValue = drawerOpen ? 0 : 0.5;
+    
+    setDrawerOpen(!drawerOpen);
+    
     
     Animated.parallel([
       Animated.timing(drawerAnim, {
@@ -83,8 +87,13 @@ export default function WorkerDashboard() {
         useNativeDriver: true,
       }),
     ]).start();
+  };
+  
+  const forceCloseDrawer = () => {
+    setDrawerOpen(false);
     
-    setDrawerOpen(!drawerOpen);
+    drawerAnim.setValue(-DRAWER_WIDTH);
+    overlayOpacity.setValue(0);
   };
 
   const renderJobCard = (job: any, actionButton?: React.ReactNode) => (
@@ -123,18 +132,18 @@ export default function WorkerDashboard() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Overlay */}
+      
       {drawerOpen && (
         <TouchableOpacity
           activeOpacity={1}
-          onPress={toggleDrawer}
           style={StyleSheet.absoluteFill}
+          onPress={forceCloseDrawer}
         >
           <Animated.View 
             style={[
               StyleSheet.absoluteFill, 
               styles.overlay,
-              { opacity: overlayOpacity }
+              { opacity: overlayOpacity, zIndex: 1 }
             ]} 
           />
         </TouchableOpacity>
@@ -144,9 +153,21 @@ export default function WorkerDashboard() {
       <Animated.View 
         style={[
           styles.drawer,
-          { transform: [{ translateX: drawerAnim }] }
+          {
+            transform: [{ translateX: drawerAnim }],
+            zIndex: 2,
+          },
         ]}
       >
+        {/* Add back button at the top of drawer */}
+        <TouchableOpacity 
+          style={styles.drawerBackButton} 
+          onPress={forceCloseDrawer}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={24} color="#1f2937" />
+        </TouchableOpacity>
+        
         <View style={styles.drawerHeader}>
           <View style={styles.profileImageContainer}>
             <Image 
@@ -406,8 +427,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
+  drawerBackButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    zIndex: 10,
+    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
   drawerHeader: {
     padding: 24,
+    paddingTop: 48, 
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",

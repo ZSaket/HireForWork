@@ -16,25 +16,17 @@ import { useRouter } from 'expo-router';
 
 export default function RoleSelectionScreen() {
   const { user } = useUser();
-//   const navigation = useNavigation();
-  // Explicitly type the state variables
+
   const [role, setRole] = useState<'hirer' | 'worker' | ''>('');
   const [bio, setBio] = useState<string>('');
   const [city, setCity] = useState<string>('');
-  const [skills, setSkills] = useState<string[]>([]); // Explicitly type as string array
+  const [skills, setSkills] = useState<string[]>([]); 
   const [newSkill, setNewSkill] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
   
   const updateUser = useMutation(api.users.updateUserProfile);
 
-  // type RootStackParamList = {
-  //   HirerDashboard: undefined;
-  //   WorkerDashboard: undefined;
-  //   // Add other screens here
-  // };
-
-  // const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   
   const handleSkillAdd = () => {
     if (newSkill.trim() && !skills.includes(newSkill.trim())) {
@@ -61,7 +53,6 @@ export default function RoleSelectionScreen() {
     setIsLoading(true);
     
     try {
-      // Create location object if city is provided
       let location = null;
       
       
@@ -73,8 +64,7 @@ export default function RoleSelectionScreen() {
         location: location || undefined
       });
       
-      // Navigate based on role
-      //navigation.navigate(role === 'hirer' ? 'HirerDashboard' : 'WorkerDashboard');
+      
       if (role === "hirer") {
         router.replace("/hirer/HirerDashboard");
       } else if (role === "worker") {

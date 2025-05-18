@@ -1,5 +1,6 @@
 import { ImageBackground, View, Text, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
+import { useFonts } from 'expo-font';
 import { styles } from '../../styles/auth.styles'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants/theme'
@@ -17,27 +18,30 @@ export default function login() {
     const convex = useConvex();
     const { user } = useUser();
 
+    const [fontsLoaded] = useFonts({
+      PoppinsRegular: require('../../assets/fonts/Poppins-Regular.ttf'),
+      PoppinsSemiBold: require('../../assets/fonts/Poppins-SemiBold.ttf'),
+    });
+    if (!fontsLoaded) return null;
     const handleGoogleSignIn = async () => {
       try {
         const { createdSessionId, setActive } = await startSSOFlow({ strategy: "oauth_google" });
         
         if (setActive && createdSessionId) {
-          // First, activate the session
           await setActive({ session: createdSessionId });
     
           
           if (user && user.id) {
             try {
-              // Use convex.query to directly call your query function
               const userProfile = await convex.query(api.users.getUserByClerkId, { 
                 clerkId: user.id 
               });
               
               if (userProfile && userProfile.role && userProfile.role !== 'pending') {
-                // User exists and has a role, direct to tabs
+                
                 router.replace("/")
               } else {
-                // User doesn't exist or has no role, direct to role selection
+                
                 router.replace("/(auth)/RoleSelection");
               }
             } catch (error) {
@@ -45,7 +49,7 @@ export default function login() {
               router.replace("/(auth)/RoleSelection");
             }
           } else {
-            // Fallback to role selection if can't get user for some reason
+            
             router.replace("/(auth)/login");
           }
         }
@@ -55,36 +59,46 @@ export default function login() {
     };
 
     return (
-        <ImageBackground
-            source={require('../../assets/images/Feed-rafiki.png')}
-            className="flex-1 justify-center items-center"
-            resizeMode="cover"
-        >
-            <View className='flex-1 justify-center items-center'>
-                <Text className='font-bold text-7xl font-poppins text-[#F59E0B] mt-10'>HireForWork</Text>
-                <Text className='font-semibold text-[#9CA3AF]'>GET IT DONE BY ANYONE</Text>
-                <View style={styles.illustrationContainer}>
-                    <Image
-                        source={require("../../assets/images/Messenger-pana.png")}
-                        style={styles.illustration} />
-                </View>
+      <ImageBackground
+      source={require('../../assets/images/Feed-rafiki.png')}
+      className="flex-1"
+      resizeMode="cover"
+    >
+      <View className="flex-1 justify-between px-4">
+        <View className="mt-11 items-center">
+          <Text style={{ fontFamily: 'PoppinsSemiBold' }} className="text-[55px] md:text-[52px] lg:text-[60px] text-[#F59E0B] text-center leading-snug">
+            HireForWork
+          </Text>
+          <Text className="text-[#9CA3AF] text-base mt-1 text-center">
+            GET IT DONE BY ANYONE
+          </Text>
+        </View>
+    
+        <View className="flex items-center justify-center">
+          <Image
+            source={require("../../assets/images/Messenger-pana.png")}
+            style={styles.illustration}
+          />
+        </View>
+    
+        <View style={styles.loginSection}>
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={handleGoogleSignIn}
+            activeOpacity={0.9}
+          >
+            <View style={styles.googleIconContainer}>
+              <Ionicons name="logo-google" size={20} color={COLORS.secondary} />
             </View>
-
-            <View style={styles.loginSection}>
-                <TouchableOpacity
-                    style={styles.googleButton}
-                    onPress={handleGoogleSignIn}
-                    activeOpacity={0.9}
-                >
-                   <View style={styles.googleIconContainer}>
-                        <Ionicons name='logo-google' size={20} color={COLORS.secondary}/>
-                    </View>
-                    <Text style={styles.googleButtonText}>Continue with Google</Text> 
-                </TouchableOpacity>
-                <Text style={styles.termsText}>
-                    By continuing, you agree to our Terms and Privacy Policy
-                </Text>
-            </View>
-        </ImageBackground>
+            <Text style={styles.googleButtonText}>Continue with Google</Text>
+          </TouchableOpacity>
+    
+          <Text style={styles.termsText}>
+            By continuing, you agree to our Terms and Privacy Policy
+          </Text>
+        </View>
+        </View>
+    </ImageBackground>
+    
     )
 }

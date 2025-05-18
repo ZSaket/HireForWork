@@ -92,7 +92,6 @@ export default function EditProfileScreen() {
     
     if (!result.canceled && result.assets && result.assets[0]) {
       Alert.alert("Profile image updating feature will be implemented soon!");
-      // Here you would upload the image to your storage solution and update user record
     }
   };
 

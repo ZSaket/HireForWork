@@ -35,15 +35,13 @@ export default function ReviewScreen() {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Fetch job details as a backup to get workerId
   const job = useQuery(api.jobs.getJobById, { 
     jobId: jobId ? (jobId as Id<"jobs">) : undefined
   });
   
-  // Set fallback workerId from job if not provided in params
   const effectiveWorkerId = workerId || (job?.acceptedBy as string);
   
-  // Connect to your Convex backend
+
   const submitReview = useMutation(api.reviews.createReview);
 
 
@@ -51,7 +49,7 @@ export default function ReviewScreen() {
     console.log("Effective worker ID:", effectiveWorkerId);
   }, [effectiveWorkerId]);
   
-  // Validate required parameters
+  
   useEffect(() => {
     if (!jobId) {
       Alert.alert(
@@ -89,11 +87,9 @@ export default function ReviewScreen() {
       
       console.log("Review data being submitted:", JSON.stringify(reviewData));
       
-      // Submit review to the database
-      // The mutation automatically uses the authenticated user's ID as the reviewer
+      
       await submitReview(reviewData);
       
-      // Show success message and redirect to hirer dashboard
       Alert.alert(
         "Review Submitted", 
         `Your review for "${jobTitle}" has been submitted successfully.`,
@@ -126,7 +122,6 @@ export default function ReviewScreen() {
     return stars;
   };
   
-  // If job data is still loading, show a loading indicator
   if (job === undefined) {
     return (
       <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
@@ -136,7 +131,6 @@ export default function ReviewScreen() {
     );
   }
 
-  // Prevent reviewing if job isn't completed and paid
   if (job && job.paymentStatus !== 'completed') {
     return (
       <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center p-4">
@@ -167,7 +161,7 @@ export default function ReviewScreen() {
         </View>
         
         <ScrollView className="flex-1 px-4">
-          {/* Job Details Section */}
+          
           <View className="bg-white rounded-xl p-5 mt-4 shadow-sm">
             <Text className="text-lg font-bold text-gray-800 mb-3">Job Details</Text>
             
@@ -182,7 +176,7 @@ export default function ReviewScreen() {
             </View>
           </View>
           
-          {/* Debug info - You can keep for development or remove for production */}
+          
           {__DEV__ && (
             <View className="bg-yellow-50 p-3 mt-2 rounded-lg border border-yellow-200">
               <Text className="text-xs">Worker ID: {effectiveWorkerId || "Missing"}</Text>
@@ -191,7 +185,7 @@ export default function ReviewScreen() {
             </View>
           )}
           
-          {/* Rating Section */}
+          
           <View className="bg-white rounded-xl p-5 mt-4 shadow-sm">
             <Text className="text-lg font-bold text-gray-800 mb-3">Rate Your Experience</Text>
             <Text className="text-gray-600 mb-3">How would you rate your experience with the worker?</Text>
@@ -212,7 +206,7 @@ export default function ReviewScreen() {
             </View>
           </View>
           
-          {/* Comment Section */}
+          
           <View className="bg-white rounded-xl p-5 mt-4 shadow-sm mb-4">
             <Text className="text-lg font-bold text-gray-800 mb-3">Leave a Comment</Text>
             <Text className="text-gray-600 mb-3">Share your experience to help other hirers (Optional)</Text>
@@ -233,7 +227,7 @@ export default function ReviewScreen() {
           </View>
         </ScrollView>
         
-        {/* Submit button */}
+        
         <View className="p-4 bg-white border-t border-gray-200">
           <TouchableOpacity
             onPress={handleSubmitReview}

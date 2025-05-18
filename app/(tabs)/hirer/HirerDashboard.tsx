@@ -1,10 +1,10 @@
 import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Alert, StyleSheet, Animated, Dimensions, Image } from 'react-native';
 import React, { useState, useRef } from 'react';
+import { useFonts } from 'expo-font';
 import { useUser, useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Ionicons, MaterialIcons, FontAwesome5, Feather } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Id } from '@/convex/_generated/dataModel';
 
@@ -15,6 +15,7 @@ export default function HirerDashboard() {
   const { user } = useUser();
   const { signOut } = useAuth();
   
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
@@ -24,7 +25,7 @@ export default function HirerDashboard() {
   });
   
   const createJob = useMutation(api.jobs.createJob);
-  // Modified to use the new query that excludes completed jobs
+
   const jobHistory = useQuery(
     api.jobs.getJobsByHirer,
     userData?._id ? { hirerId: userData._id } : "skip"
@@ -37,8 +38,11 @@ export default function HirerDashboard() {
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   const toggleDrawer = () => {
+    
     const toValue = drawerOpen ? -DRAWER_WIDTH : 0;
     const overlayValue = drawerOpen ? 0 : 0.5;
+    
+    setDrawerOpen(!drawerOpen);
     
     Animated.parallel([
       Animated.timing(drawerAnim, {
@@ -52,10 +56,18 @@ export default function HirerDashboard() {
         useNativeDriver: true,
       }),
     ]).start();
-    
-    setDrawerOpen(!drawerOpen);
   };
-
+  
+  const forceCloseDrawer = () => {
+    
+    setDrawerOpen(false);
+    
+    drawerAnim.setValue(-DRAWER_WIDTH);
+    overlayOpacity.setValue(0);
+  };
+  const [fontsLoaded] = useFonts({
+      PoppinsSemiBold: require('../../../assets/fonts/Poppins-SemiBoldItalic.ttf'),
+  });
   const handleCreateJob = async () => {
     if (!title || !description || !location || !wage || !userData?._id) {
       Alert.alert("Missing Information", "Please fill in all job details");
@@ -74,10 +86,10 @@ export default function HirerDashboard() {
         hirerName: userData.name,
       });
       
-      // Show success message
+      
       Alert.alert("Success", "Job created successfully!");
       
-      // Reset form fields
+      
       setTitle('');
       setDescription('');
       setLocation('');
@@ -89,7 +101,7 @@ export default function HirerDashboard() {
   };
 
   const handleMarkJobDone = (jobId: Id<"jobs">, jobWage: string, jobTitle: string, workerName: string) => {
-    // Using Expo Router for navigation to payment screen
+    
     router.push({
       pathname: "/(screens)/PaymentScreen",
       params: { 
@@ -106,32 +118,25 @@ export default function HirerDashboard() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  // Function to determine if a job can be marked as done (if status is 'in-progress')
+  
   const canMarkJobDone = (status: string) => {
     return status === 'in-progress';
-  };
-
-  // Close drawer when touched outside
-  const closeDrawer = () => {
-    if (drawerOpen) {
-      toggleDrawer();
-    }
   };
   
   return (
     <View style={styles.safeArea}>
-      {/* Overlay for closing drawer when touched outside */}
+      
       {drawerOpen && (
         <TouchableOpacity
           activeOpacity={1}
-          onPress={closeDrawer}
-          style={[StyleSheet.absoluteFill, styles.overlayTouchable]}
+          style={StyleSheet.absoluteFill}
+          onPress={forceCloseDrawer}
         >
           <Animated.View 
             style={[
               StyleSheet.absoluteFill, 
               styles.overlay,
-              { opacity: overlayOpacity }
+              { opacity: overlayOpacity, zIndex: 1 }
             ]} 
           />
         </TouchableOpacity>
@@ -147,6 +152,15 @@ export default function HirerDashboard() {
           },
         ]}
       >
+        
+        <TouchableOpacity 
+          style={styles.drawerBackButton} 
+          onPress={forceCloseDrawer}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={24} color="#1f2937" />
+        </TouchableOpacity>
+        
         <View style={styles.drawerHeader}>
           <View style={styles.profileImageContainer}>
             <Image 
@@ -387,8 +401,23 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  drawerBackButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    zIndex: 10,
+    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
   drawerHeader: {
     padding: 24,
+    paddingTop: 48, 
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
@@ -415,6 +444,7 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 18,
     fontWeight: "700",
+    fontFamily:"Poppins",
     color: "#1f2937",
     marginBottom: 4,
   },
@@ -444,8 +474,5 @@ const styles = StyleSheet.create({
   },
   overlay: {
     backgroundColor: "#000",
-  },
-  overlayTouchable: {
-    zIndex: 5, // Ensure it's below the drawer but above the content
   },
 });
