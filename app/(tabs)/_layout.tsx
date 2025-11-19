@@ -1,10 +1,10 @@
 import { Slot, router } from 'expo-router';
 import { useUser } from '@clerk/clerk-expo';
 import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
+import { api } from './../../convex/_generated/api';
 import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { COLORS } from '@/constants/theme';
+import { COLORS } from './../../constants/theme';
 
 export default function RootLayout() {
   const [hasRedirected, setHasRedirected] = useState(false);

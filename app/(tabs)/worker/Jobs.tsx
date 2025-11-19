@@ -1,10 +1,10 @@
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
+import { api } from './../../../convex/_generated/api';
 import { useUser } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
-import { Id } from "@/convex/_generated/dataModel";
+import { Id } from "./../../../convex/_generated/dataModel";
 
 export default function Jobs() {
   const { user } = useUser();

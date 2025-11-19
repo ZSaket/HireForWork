@@ -3,7 +3,7 @@ import React from 'react'
 import { useFonts } from 'expo-font';
 import { styles } from '../../styles/auth.styles'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS } from '@/constants/theme'
+import { COLORS } from './../../constants/theme'
 import { useSSO } from '@clerk/clerk-expo'
 import { useUser } from '@clerk/clerk-expo'
 import { useRouter } from 'expo-router'

@@ -11,9 +11,9 @@ import {
 import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation, useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
+import { api } from './../../convex/_generated/api';
 import { Stack, useLocalSearchParams, router } from 'expo-router';
-import { Id } from '@/convex/_generated/dataModel';
+import { Id } from './../../convex/_generated/dataModel';
 
 export default function ReviewScreen() {
   const params = useLocalSearchParams();

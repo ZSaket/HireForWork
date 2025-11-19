@@ -1,6 +1,6 @@
 
-import { Id } from "@/convex/_generated/dataModel";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Id } from "./../convex/_generated/dataModel";
+import { NativeStackScreenProps } from "./../node_modules/@react-navigation/native-stack/lib/typescript/src/types";
 
 export interface UserProfile {
   id: Id<"users">;

@@ -3,10 +3,10 @@ import React, { useState, useRef } from 'react';
 import { useFonts } from 'expo-font';
 import { useUser, useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
+import { api } from './../../../convex/_generated/api';
 import { Ionicons, MaterialIcons, FontAwesome5, Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Id } from '@/convex/_generated/dataModel';
+import { Id } from './../../../convex/_generated/dataModel';
 
 const { width } = Dimensions.get("window");
 const DRAWER_WIDTH = width * 0.7;

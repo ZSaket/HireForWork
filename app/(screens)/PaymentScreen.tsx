@@ -10,9 +10,9 @@ import {
 } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
+import { api } from './../../convex/_generated/api';
 import { Stack, useLocalSearchParams, router } from 'expo-router';
-import { Id } from '@/convex/_generated/dataModel';
+import { Id } from '../../convex/_generated/dataModel';
 
 export default function PaymentScreen() {
   const params = useLocalSearchParams();
